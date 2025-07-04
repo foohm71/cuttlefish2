@@ -1,7 +1,8 @@
 "use client";
 import React, { useState, useEffect } from "react";
 
-const API_URL = "http://127.0.0.1:8000"; // Change to your backend URL if needed
+// Use environment variable for API URL, fallback to localhost for local dev
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
 type SimilarResult = {
   id: string | number;
