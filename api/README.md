@@ -33,41 +33,25 @@ This folder contains the FastAPI backend for the Cuttlefish project. It provides
      ```bash
      uvicorn main:app --reload
      ```
-   - The app uses [Mangum](https://github.com/jordaneremieff/mangum) for serverless compatibility, but this does not affect local usage.
 
-## Deploying to Vercel (Serverless)
+## Deploying to Render
 
-This API is compatible with Vercel serverless functions using Mangum.
+This API is compatible with Render's free web service.
 
 1. **Project structure:**
-   - Ensure your FastAPI app is in `api/main.py` and exports a `handler` variable:
-     ```python
-     from fastapi import FastAPI
-     from mangum import Mangum
-     app = FastAPI()
-     # ... define routes ...
-     handler = Mangum(app)
-     ```
-   - `vercel.json` should specify the Python runtime:
-     ```json
-     {
-       "functions": {
-         "main.py": {
-           "runtime": "python3.9"
-         }
-       }
-     }
-     ```
-   - All dependencies (including `mangum`) must be in `requirements.txt`.
+   - Ensure your FastAPI app is in `api/main.py` and your `requirements.txt` is in the same folder.
 
-2. **Deploy:**
-   - Push your repo to GitHub/GitLab.
-   - Import the project in [Vercel](https://vercel.com/).
-   - Vercel will deploy the API as a serverless function at `/api/main`.
-   - Set environment variables in the Vercel dashboard as needed.
+2. **Create a new Web Service on Render:**
+   - Set the root directory to `api/` when connecting your repo.
+   - Set the **Start Command** to:
+     ```bash
+     uvicorn main:app --host 0.0.0.0 --port 10000
+     ```
+   - Set environment variables in the Render dashboard as needed (see above).
 
-3. **Usage:**
-   - Your endpoints will be available at `https://<your-vercel-project>.vercel.app/api/main/similar` and `/api/main/rag`.
+3. **Deploy:**
+   - Render will install dependencies and start your FastAPI app.
+   - Your endpoints will be available at `https://<your-render-service>.onrender.com/similar` and `/rag`.
 
 ## API Endpoints
 
@@ -109,10 +93,22 @@ This API is compatible with Vercel serverless functions using Mangum.
   ```
 
 ## Testing
-- Use the provided `test.sh` script or tools like curl/Postman to test endpoints.
+- Use the provided `test.sh` script for local testing, or `test-render.sh` for testing the deployed Render API.
 - For local testing, ensure FastAPI is running with `uvicorn main:app --reload`.
-- For Vercel, endpoints are available at `/api/main`.
+- For Render, endpoints are available at your Render service URL (e.g., `https://<your-render-service>.onrender.com`).
 - Make sure your backend is running and accessible from your frontend (CORS is enabled).
+
+## test-render.sh
+
+The `test-render.sh` script allows you to test your deployed Render API endpoints. It uses your Render service URL and your OpenAI API key to send test requests to `/similar` and `/rag` endpoints.
+
+**Usage:**
+1. Set your Render API URL and OpenAI API key at the top of the script, or load them from a `.env` file.
+2. Run the script:
+   ```bash
+   ./test-render.sh
+   ```
+3. The script will print the results of both endpoints.
 
 ## Notes
 - The OpenAI API key is provided per request for security and flexibility.
