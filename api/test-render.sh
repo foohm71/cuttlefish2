@@ -1,18 +1,16 @@
 #!/bin/bash
 
-API_URL="https://cuttlefish2.onrender.com"
-
-# Load OPENAI_API_KEY from .env if available
+# Load API_URL and OPENAI_API_KEY from .env if available
 if [ -f .env ]; then
-  export $(grep -v '^#' .env | grep OPENAI_API_KEY | xargs)
+  export $(grep -v '^#' .env | grep -E 'API_URL|OPENAI_API_KEY' | xargs)
 fi
 
-# Fallback to hardcoded key if not set
+# Fallback to hardcoded values if not set
+API_URL="${API_URL:-https://cuttlefish2.onrender.com}"
+OPENAI_API_KEY="${OPENAI_API_KEY:-}"  # Set your key in .env if not set here
 QUERY="All the Null Pointer Exceptions (NPE)"
 
-# For local testing, ensure FastAPI is running:
-#   uvicorn main:app --reload
-# For Vercel, the handler will be used automatically.
+# For Render, endpoints are available at your Render service URL
 
 # Test /similar endpoint
 echo "Testing /similar endpoint..."

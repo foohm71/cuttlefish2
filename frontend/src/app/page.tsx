@@ -3,10 +3,30 @@ import React, { useState, useEffect } from "react";
 
 const API_URL = "http://127.0.0.1:8000"; // Change to your backend URL if needed
 
+type SimilarResult = {
+  id: string | number;
+  score: number;
+  payload: {
+    key?: string;
+    title?: string;
+    description?: string;
+    [key: string]: unknown;
+  };
+};
+
+type SimilarResponse = {
+  results: SimilarResult[];
+};
+
+type RagResponse = {
+  answer: string;
+  context: SimilarResult[];
+};
+
 export default function Home() {
   const [openaiKey, setOpenaiKey] = useState("");
   const [query, setQuery] = useState("");
-  const [result, setResult] = useState<any>(null);
+  const [result, setResult] = useState<SimilarResponse | RagResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -39,8 +59,12 @@ export default function Home() {
       }
       const data = await res.json();
       setResult(data);
-    } catch (err: any) {
-      setError(err.message || "Request failed");
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message || "Request failed");
+      } else {
+        setError("Request failed");
+      }
     } finally {
       setLoading(false);
     }
@@ -96,7 +120,7 @@ export default function Home() {
         {result && (
           <div className="mt-4">
             <h2 className="font-bold mb-2">Results</h2>
-            {result.results ? (
+            {"results" in result ? (
               <div className="overflow-x-auto">
                 <table className="min-w-full bg-white border border-gray-200 rounded">
                   <thead>
@@ -108,18 +132,18 @@ export default function Home() {
                     </tr>
                   </thead>
                   <tbody>
-                    {result.results.map((item: any, idx: number) => (
+                    {result.results.map((item, idx) => (
                       <tr key={item.id || idx} className="hover:bg-gray-50">
                         <td className="px-3 py-2 border-b text-right">{item.score.toFixed(4)}</td>
                         <td className="px-3 py-2 border-b">{item.payload?.key || item.id}</td>
                         <td className="px-3 py-2 border-b">{item.payload?.title || ""}</td>
-                        <td className="px-3 py-2 border-b max-w-xs truncate" title={item.payload?.description}>{item.payload?.description || ""}</td>
+                        <td className="px-3 py-2 border-b max-w-xs truncate" title={item.payload?.description as string}>{item.payload?.description || ""}</td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
-            ) : result.answer && result.context ? (
+            ) : "answer" in result && "context" in result ? (
               <>
                 <div className="mb-6">
                   <h3 className="font-semibold mb-1">Answer</h3>
@@ -139,11 +163,11 @@ export default function Home() {
                         </tr>
                       </thead>
                       <tbody>
-                        {result.context.map((item: any, idx: number) => (
+                        {result.context.map((item, idx) => (
                           <tr key={item.id || idx} className="hover:bg-gray-50">
                             <td className="px-3 py-2 border-b">{item.payload?.key || item.id}</td>
                             <td className="px-3 py-2 border-b">{item.payload?.title || ""}</td>
-                            <td className="px-3 py-2 border-b max-w-xs truncate" title={item.payload?.description}>{item.payload?.description || ""}</td>
+                            <td className="px-3 py-2 border-b max-w-xs truncate" title={item.payload?.description as string}>{item.payload?.description || ""}</td>
                           </tr>
                         ))}
                       </tbody>
