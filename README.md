@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="frontend/public/cuttlefish.svg" alt="Cuttlefish Logo" width="120" />
+</p>
+
 # Cuttlefish2: Jira Bug Similarity Search, RAG, and UI
 
 ## Introduction
