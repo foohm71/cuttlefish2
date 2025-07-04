@@ -24,7 +24,7 @@ This folder contains the FastAPI backend for the Cuttlefish project. It provides
    OPENAI_RAG_MODEL=gpt-3.5-turbo
    ```
 
-3. **Run the server:**
+3. **Run the server locally:**
    - From the project root:
      ```bash
      uvicorn api.main:app --reload
@@ -33,6 +33,41 @@ This folder contains the FastAPI backend for the Cuttlefish project. It provides
      ```bash
      uvicorn main:app --reload
      ```
+   - The app uses [Mangum](https://github.com/jordaneremieff/mangum) for serverless compatibility, but this does not affect local usage.
+
+## Deploying to Vercel (Serverless)
+
+This API is compatible with Vercel serverless functions using Mangum.
+
+1. **Project structure:**
+   - Ensure your FastAPI app is in `api/main.py` and exports a `handler` variable:
+     ```python
+     from fastapi import FastAPI
+     from mangum import Mangum
+     app = FastAPI()
+     # ... define routes ...
+     handler = Mangum(app)
+     ```
+   - `vercel.json` should specify the Python runtime:
+     ```json
+     {
+       "functions": {
+         "main.py": {
+           "runtime": "python3.9"
+         }
+       }
+     }
+     ```
+   - All dependencies (including `mangum`) must be in `requirements.txt`.
+
+2. **Deploy:**
+   - Push your repo to GitHub/GitLab.
+   - Import the project in [Vercel](https://vercel.com/).
+   - Vercel will deploy the API as a serverless function at `/api/main`.
+   - Set environment variables in the Vercel dashboard as needed.
+
+3. **Usage:**
+   - Your endpoints will be available at `https://<your-vercel-project>.vercel.app/api/main/similar` and `/api/main/rag`.
 
 ## API Endpoints
 
@@ -75,6 +110,8 @@ This folder contains the FastAPI backend for the Cuttlefish project. It provides
 
 ## Testing
 - Use the provided `test.sh` script or tools like curl/Postman to test endpoints.
+- For local testing, ensure FastAPI is running with `uvicorn main:app --reload`.
+- For Vercel, endpoints are available at `/api/main`.
 - Make sure your backend is running and accessible from your frontend (CORS is enabled).
 
 ## Notes

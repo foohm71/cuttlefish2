@@ -6,6 +6,7 @@ import openai
 import os
 from qdrant_client import QdrantClient
 from dotenv import load_dotenv
+from mangum import Mangum
 
 load_dotenv()
 
@@ -110,4 +111,6 @@ def rag(request: QueryRequest):
         return response
     except Exception as e:
         print(f"[ERROR] /rag endpoint failed: {e}")
-        raise HTTPException(status_code=500, detail=str(e)) 
+        raise HTTPException(status_code=500, detail=str(e))
+
+handler = Mangum(app) 
